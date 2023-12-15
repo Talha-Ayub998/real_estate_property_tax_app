@@ -21,8 +21,7 @@ def convert_to_pandas_dataframe(result):
     return pd.DataFrame(total_revenue)
 
 def perform_analysis_with_r_integration(data):
-    # merged_data = pd.DataFrame(data)
-    merged_data = read_csv("test_data2.csv")
+    merged_data = pd.DataFrame(data)
     v_values = read_csv("v_values.csv")
     pandas2ri.deactivate()
     pandas2ri.activate()
