@@ -235,7 +235,7 @@ perform_analysis <- function(atr_calc, values) {
   revenues_long$Revenue_Type_Label <- labels[revenues_long$Revenue_Type]
 
   
-  return(list(plot_data=plot_data, total_revenue=total_revenue, revenues_long=revenues_long))
+  return(total_revenue)
   print("code_chunk_4")
 }
 """
