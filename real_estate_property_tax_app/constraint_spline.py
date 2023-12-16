@@ -2,7 +2,11 @@ from rpy2.robjects import pandas2ri
 import rpy2.robjects as robjects
 from r_code.r_code import r_code
 import pandas as pd
+robjects.r('library(dplyr)')
+robjects.r('library(restriktor)')
+robjects.r('library(tidyr)')
 pandas2ri.activate()
+
 
 def read_csv(file_path):
     return pd.read_csv(file_path)
@@ -21,7 +25,7 @@ def convert_to_pandas_dataframe(result):
     return pd.DataFrame(total_revenue)
 
 def perform_analysis_with_r_integration(data):
-    merged_data = pd.DataFrame(data)
+    merged_data = read_csv("test_data2.csv")
     v_values = read_csv("v_values.csv")
     pandas2ri.deactivate()
     pandas2ri.activate()
