@@ -7,10 +7,6 @@ robjects.r('library(restriktor)')
 robjects.r('library(tidyr)')
 pandas2ri.activate()
 
-
-def read_csv(file_path):
-    return pd.read_csv(file_path)
-
 def convert_to_r_dataframe(data_frame):
     return pandas2ri.py2rpy(data_frame)
 
@@ -25,8 +21,8 @@ def convert_to_pandas_dataframe(result):
     return pd.DataFrame(total_revenue)
 
 def perform_analysis_with_r_integration(data):
-    merged_data = read_csv("test_data2.csv")
-    v_values = read_csv("v_values.csv")
+    merged_data = pd.DataFrame(data)
+    v_values = pd.read_csv("v_values.csv")
     pandas2ri.deactivate()
     pandas2ri.activate()
 
@@ -35,3 +31,10 @@ def perform_analysis_with_r_integration(data):
     result = run_r_analysis(merged_data_r, v_values_r)
 
     return convert_to_pandas_dataframe(result)
+
+
+# # Install the R package eg: 'dplyr'
+# import rpy2.robjects.packages as rpackages
+
+# utils = rpackages.importr('utils')
+# utils.install_packages('dplyr')
