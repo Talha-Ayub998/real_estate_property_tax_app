@@ -17,8 +17,8 @@ def run_r_analysis(merged_data, v_values):
     return result
 
 def convert_to_pandas_dataframe(result):
-    total_revenue = result
-    return pd.DataFrame(total_revenue)
+    total_revenue = pd.DataFrame(result)
+    return total_revenue.values.flatten().tolist()
 
 def perform_analysis_with_r_integration(data):
     merged_data = pd.DataFrame(data)
