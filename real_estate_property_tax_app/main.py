@@ -2,8 +2,7 @@ from app import app
 from flask_cors import CORS
 
 # Enable CORS for all routes
-CORS(app, resources={r"/": {"origins": ""}}, supports_credentials=True,
-     methods=["GET", "HEAD", "POST", "PATCH", "PUT", "DELETE"])
+CORS(app)
 
 if __name__ == '__main__':
     # Run the app using Gunicorn
