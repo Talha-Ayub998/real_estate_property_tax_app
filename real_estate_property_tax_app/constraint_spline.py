@@ -2,7 +2,7 @@ from rpy2.robjects import pandas2ri
 import rpy2.robjects as robjects
 from r_code.r_code import r_code
 import pandas as pd
-import json
+import json, os
 from datetime import datetime
 robjects.r('library(dplyr)')
 robjects.r('library(restriktor)')
@@ -23,8 +23,11 @@ def convert_to_pandas_dataframe(result):
     return total_revenue.values.flatten().tolist()
 
 def perform_analysis_with_r_integration(data):
+    directory = './Array_for_R_code'
+    if not os.path.exists(directory):
+        os.makedirs(directory)
     current_datetime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    json_filename = f"{current_datetime}.json"
+    json_filename = os.path.join(directory, f"{current_datetime}.json")
     with open(json_filename, 'w') as json_file:
         json.dump(data, json_file, indent=2)
     merged_data = pd.DataFrame(data)
