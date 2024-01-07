@@ -189,6 +189,24 @@ perform_analysis <- function(atr_calc, values) {
   # Append or concatenate group_1_data and group_0_data
   combined_data <- bind_rows(group_1_data, group_0_data)
   
+  add_condition <- plot_data$group_type == 1 & plot_data$onlyuse %in% c("Commercial") & plot_data$onlyocc %in% c("Rented")
+  if (any(add_condition)) {
+    new_row <- data.frame(onlyuse = "Residential", onlyocc = "Self-occupied", theta=0.05, group_type=0)
+  }
+  add_condition <- plot_data$group_type == 1 & plot_data$onlyuse %in% c("Commercial") & plot_data$onlyocc %in% c("Self-occupied")
+  if (any(add_condition)) {
+    new_row <- data.frame(onlyuse = "Residential", onlyocc = "Rented", theta=1.25, group_type=0)
+  }
+  add_condition <- plot_data$group_type == 1 & plot_data$onlyuse %in% c("Residential") & plot_data$onlyocc %in% c("Self-occupied")
+  if (any(add_condition)) {
+    new_row <- data.frame(onlyuse = "Commercial", onlyocc = "Rented", theta=20, group_type=0)
+  }
+  add_condition <- plot_data$group_type == 1 & plot_data$onlyuse %in% c("Residential") & plot_data$onlyocc %in% c("Rented")
+  if (any(add_condition)) {
+    new_row <- data.frame(onlyuse = "Commercial", onlyocc = "Self-occupied", theta=0.8, group_type=0)
+  }
+
+  combined_data <- bind_rows(combined_data, new_row)
   
   selected_data <- combined_data %>%
     select(theta, group_type, onlyocc, onlyuse)%>%
