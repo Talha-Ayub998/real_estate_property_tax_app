@@ -85,6 +85,8 @@ perform_analysis <- function(atr_calc, values) {
   plot_data <- plot_data %>% 
     mutate(theta = ifelse(group_type == 1, 1, atr / pred))
   
+ if(FALSE) {add_condition
+
   # Identify rows with group_type == 1, onlyuse is either "Commercial" or "Residential", and onlyocc is either "Self-occupied" or "Rented"
   replace_condition <- plot_data$group_type == 1 & plot_data$onlyuse %in% c("Commercial") & plot_data$onlyocc %in% c("Self-occupied")
   
@@ -165,6 +167,7 @@ perform_analysis <- function(atr_calc, values) {
     plot_data$theta[plot_data$group_type == 0 & plot_data$onlyuse == "Commercial" & plot_data$onlyocc == "Rented" & plot_data$theta == 0] <- 1
   }
   
+}
   
   # Print linear regression summary
   summary(restr.cspline)
@@ -184,30 +187,46 @@ perform_analysis <- function(atr_calc, values) {
   
   # Split the data into two datasets
   group_1_data <- plot_data %>% filter(group_type == 1) %>% slice_head(n = 1)
-  group_0_data <- plot_data %>% filter(group_type == 0)
-  
+#  group_0_data <- plot_data %>% filter(group_type == 0)
+
   # Append or concatenate group_1_data and group_0_data
-  combined_data <- bind_rows(group_1_data, group_0_data)
+  combined_data <- bind_rows(group_1_data)
   
-  add_condition <- plot_data$group_type == 1 & plot_data$onlyuse %in% c("Commercial") & plot_data$onlyocc %in% c("Rented")
+  #Assign theta as per the valuation table to the out group that is ommitted
+  # If residential rented is own-group, residential self-occupied, commercial self-occupied and commercial rented will be out-group
+  add_condition <- plot_data$group_type == 1 & plot_data$onlyuse %in% c("Residential") & plot_data$onlyocc %in% c("Rented")
   if (any(add_condition)) {
-    new_row <- data.frame(onlyuse = "Residential", onlyocc = "Self-occupied", theta=0.05, group_type=0)
+    new_row <- data.frame(onlyuse = "Residential", onlyocc = "Self-occupied", theta=0.2, group_type=0)
   }
-  add_condition <- plot_data$group_type == 1 & plot_data$onlyuse %in% c("Commercial") & plot_data$onlyocc %in% c("Self-occupied")
+
   if (any(add_condition)) {
-    new_row <- data.frame(onlyuse = "Residential", onlyocc = "Rented", theta=1.25, group_type=0)
+    new_row2 <- data.frame(onlyuse = "Commercial", onlyocc = "Self-occupied", theta=0.8, group_type=0)
   }
+
+  if (any(add_condition)) {
+    new_row3 <- data.frame(onlyuse = "Commercial", onlyocc = "Rented", theta=4, group_type=0)
+  }
+
+  # If residential self-occupied is own-group, residential rented, commercial self-occupied and commercial rented will be out-group
+
   add_condition <- plot_data$group_type == 1 & plot_data$onlyuse %in% c("Residential") & plot_data$onlyocc %in% c("Self-occupied")
   if (any(add_condition)) {
     new_row <- data.frame(onlyuse = "Commercial", onlyocc = "Rented", theta=20, group_type=0)
   }
-  add_condition <- plot_data$group_type == 1 & plot_data$onlyuse %in% c("Residential") & plot_data$onlyocc %in% c("Rented")
+  
   if (any(add_condition)) {
-    new_row <- data.frame(onlyuse = "Commercial", onlyocc = "Self-occupied", theta=0.8, group_type=0)
+    new_row2 <- data.frame(onlyuse = "Commercial", onlyocc = "Self-occupied", theta=4, group_type=0)
+  }
+  
+  if (any(add_condition)) {
+    new_row3 <- data.frame(onlyuse = "Residential", onlyocc = "Rented", theta=5, group_type=0)
   }
 
-  combined_data <- bind_rows(combined_data, new_row)
-  
+
+
+  combined_data <- bind_rows(combined_data, new_row, new_row2, new_row3)
+
+
   selected_data <- combined_data %>%
     select(theta, group_type, onlyocc, onlyuse)%>%
     mutate(beta0 = beta0,
