@@ -29,6 +29,12 @@ perform_analysis <- function(atr_calc, values) {
   #    # Continue with further processing if needed
   #  }
   
+
+  # 4. Run the restricted spline
+
+  ## 4.1 grab the knots of the spline implied in the vs in the survey responses
+
+
   df <- merged_data
   df$lprop_val <- log(df$prop_val)
   
@@ -41,6 +47,7 @@ perform_analysis <- function(atr_calc, values) {
     subset(v3 != 0) %>%
     mutate(k2val = lprop_val - v3)
   k2 <- mean(k2$k2val)
+  ## 4.2 set up the restrictions on the spline
   vmin <- 12
   vmax <- 21
   
@@ -81,196 +88,97 @@ perform_analysis <- function(atr_calc, values) {
                           onlyuse=df$onlyuse,
                           onlyocc=df$onlyocc)
   
-  # Create the theta variable
-  plot_data <- plot_data %>% 
-    mutate(theta = ifelse(group_type == 1, 1, atr / pred))
+# 5. Use the spline coefficients to compute revenue from respondent's response property type
   
- if(FALSE) {add_condition
-
-  # Identify rows with group_type == 1, onlyuse is either "Commercial" or "Residential", and onlyocc is either "Self-occupied" or "Rented"
-  replace_condition <- plot_data$group_type == 1 & plot_data$onlyuse %in% c("Commercial") & plot_data$onlyocc %in% c("Self-occupied")
+## respondents are either "Rented" or "Self-occupied"
   
-  # Replace theta for corresponding conditions in group_type == 0
-  if (any(replace_condition)) {
-    plot_data$theta[plot_data$group_type == 0 & plot_data$onlyuse == "Residential" & plot_data$onlyocc == "Self-occupied" & plot_data$theta == 0] <- 0.25
-  }
+## refer to the equation in the overleaf being computed.
   
-  if (any(replace_condition)) {
-    plot_data$theta[plot_data$group_type == 0 & plot_data$onlyuse == "Residential" & plot_data$onlyocc == "Rented" & plot_data$theta == 0] <- as.numeric(1.25)
-  }
-  
-  if (any(replace_condition)) {
-    plot_data$theta[plot_data$group_type == 0 & plot_data$onlyuse == "Commercial" & plot_data$onlyocc == "Self-occupied" & plot_data$theta == 0] <- 1
-  }
-  
-  if (any(replace_condition)) {
-    plot_data$theta[plot_data$group_type == 0 & plot_data$onlyuse == "Commercial" & plot_data$onlyocc == "Rented" & plot_data$theta == 0] <- 5
-  }
-  
-  # Identify rows with group_type == 1, onlyuse is either "Commercial" or "Residential", and onlyocc is either "Self-occupied" or "Rented"
-  replace_condition <- plot_data$group_type == 1 & plot_data$onlyuse %in% c("Residential") & plot_data$onlyocc %in% c("Self-occupied")
-  
-  # Replace theta for corresponding conditions in group_type == 0
-  if (any(replace_condition)) {
-    plot_data$theta[plot_data$group_type == 0 & plot_data$onlyuse == "Residential" & plot_data$onlyocc == "Self-occupied" & plot_data$theta == 0] <- as.numeric(1)
-  }
-  
-  if (any(replace_condition)) {
-    plot_data$theta[plot_data$group_type == 0 & plot_data$onlyuse == "Residential" & plot_data$onlyocc == "Rented" & plot_data$theta == 0] <- 5
-  }
-  
-  if (any(replace_condition)) {
-    plot_data$theta[plot_data$group_type == 0 & plot_data$onlyuse == "Commercial" & plot_data$onlyocc == "Self-occupied" & plot_data$theta == 0] <- 4
-  }
-  
-  if (any(replace_condition)) {
-    plot_data$theta[plot_data$group_type == 0 & plot_data$onlyuse == "Commercial" & plot_data$onlyocc == "Rented" & plot_data$theta == 0] <- 20
-  }
-  
-  # Identify rows with group_type == 1, onlyuse is either "Commercial" or "Residential", and onlyocc is either "Self-occupied" or "Rented"
-  replace_condition <- plot_data$group_type == 1 & plot_data$onlyuse %in% c("Residential") & plot_data$onlyocc %in% c("Rented")
-  
-  # Replace theta for corresponding conditions in group_type == 0
-  if (any(replace_condition)) {
-    plot_data$theta[plot_data$group_type == 0 & plot_data$onlyuse == "Residential" & plot_data$onlyocc == "Self-occupied" & plot_data$theta == 0] <- 0.2
-  }
-  
-  if (any(replace_condition)) {
-    plot_data$theta[plot_data$group_type == 0 & plot_data$onlyuse == "Residential" & plot_data$onlyocc == "Rented" & plot_data$theta == 0] <- 1
-  }
-  
-  if (any(replace_condition)) {
-    plot_data$theta[plot_data$group_type == 0 & plot_data$onlyuse == "Commercial" & plot_data$onlyocc == "Self-occupied" & plot_data$theta == 0] <- 0.8
-  }
-  
-  if (any(replace_condition)) {
-    plot_data$theta[plot_data$group_type == 0 & plot_data$onlyuse == "Commercial" & plot_data$onlyocc == "Rented" & plot_data$theta == 0] <- 4
-  }
-  
-  # Identify rows with group_type == 1, onlyuse is either "Commercial" or "Residential", and onlyocc is either "Self-occupied" or "Rented"
-  replace_condition <- plot_data$group_type == 1 & plot_data$onlyuse %in% c("Commercial") & plot_data$onlyocc %in% c("Rented")
-  
-  # Replace theta for corresponding conditions in group_type == 0
-  if (any(replace_condition)) {
-    plot_data$theta[plot_data$group_type == 0 & plot_data$onlyuse == "Residential" & plot_data$onlyocc == "Self-occupied" & plot_data$theta == 0] <- 0.05
-  }
-  
-  if (any(replace_condition)) {
-    plot_data$theta[plot_data$group_type == 0 & plot_data$onlyuse == "Residential" & plot_data$onlyocc == "Rented" & plot_data$theta == 0] <- 0.25
-  }
-  
-  if (any(replace_condition)) {
-    plot_data$theta[plot_data$group_type == 0 & plot_data$onlyuse == "Commercial" & plot_data$onlyocc == "Self-occupied" & plot_data$theta == 0] <- 0.2
-  }
-  
-  if (any(replace_condition)) {
-    plot_data$theta[plot_data$group_type == 0 & plot_data$onlyuse == "Commercial" & plot_data$onlyocc == "Rented" & plot_data$theta == 0] <- 1
-  }
-  
-}
-  
-  # Print linear regression summary
-  summary(restr.cspline)
-  
-  # Print the summary
-  summary_info <-   summary(restr.cspline)
-  
-  
-  
-  # Extract coefficients
-  coefficients <- coef(summary_info)
+## 5.1 Grab the coefficients
+  coefficients <-
+    coef(
+      summary(
+        restr.cspline
+      )
+    )
+  rm(restr.cspline)
   beta0 <- coefficients[1]  # Intercept
   beta1 <- coefficients[2] 
   beta2 <- coefficients[3]
-  beta3 <- coefficients[4] 
+  beta3 <- coefficients[4]
+  rm(coefficients)
   
   
-  # Split the data into two datasets
-  group_1_data <- plot_data %>% filter(group_type == 1) %>% slice_head(n = 1)
-#  group_0_data <- plot_data %>% filter(group_type == 0)
-
-  # Append or concatenate group_1_data and group_0_data
-  combined_data <- bind_rows(group_1_data)
+## 5.2 Grab the Vxs as described in equations (7) -- (10)
   
-  #Assign theta as per the valuation table to the out group that is ommitted
-  # If residential rented is own-group, residential self-occupied, commercial self-occupied and commercial rented will be out-group
-  add_condition <- plot_data$group_type == 1 & plot_data$onlyuse %in% c("Residential") & plot_data$onlyocc %in% c("Rented")
-  if (any(add_condition)) {
-    new_row <- data.frame(onlyuse = "Residential", onlyocc = "Self-occupied", theta=0.2, group_type=0)
-  }
-
-  if (any(add_condition)) {
-    new_row2 <- data.frame(onlyuse = "Commercial", onlyocc = "Self-occupied", theta=0.8, group_type=0)
-  }
-
-  if (any(add_condition)) {
-    new_row3 <- data.frame(onlyuse = "Commercial", onlyocc = "Rented", theta=4, group_type=0)
-  }
-
-  # If residential self-occupied is own-group, residential rented, commercial self-occupied and commercial rented will be out-group
-
-  add_condition <- plot_data$group_type == 1 & plot_data$onlyuse %in% c("Residential") & plot_data$onlyocc %in% c("Self-occupied")
-  if (any(add_condition)) {
-    new_row <- data.frame(onlyuse = "Commercial", onlyocc = "Rented", theta=20, group_type=0)
-  }
+  V <- 
+    ifelse(
+      df$onlyocc[[1]] == "Rented",
+      values$v_1[[1]],
+      ifelse(
+        df$onlyocc[[1]] == "Self-occupied",
+        values$v_1[[2]],
+        NA
+      )
+    ) # equation (7)
+  V1 <-
+    ifelse(
+      df$onlyocc[[1]] == "Rented",
+      values$v_v1_1[[1]],
+      ifelse(
+        df$onlyocc[[1]] == "Self-occupied",
+        values$v_v1_1[[2]],
+        NA
+      )
+    ) # equation (8)
+  V2 <- 
+    ifelse(
+      df$onlyocc[[1]] == "Rented",
+      values$v_v2_1[[1]],
+      ifelse(
+        df$onlyocc[[1]] == "Self-occupied",
+        values$v_v2_1[[2]],
+        NA
+      )
+    ) # equation (9)
+  V3 <-
+    ifelse(
+      df$onlyocc[[1]] == "Rented",
+      values$v_v3_1[[1]],
+      ifelse(
+        df$onlyocc[[1]] == "Self-occupied",
+        values$v_v3_1[[2]],
+        NA
+      )
+    ) # equation (10)
   
-  if (any(add_condition)) {
-    new_row2 <- data.frame(onlyuse = "Commercial", onlyocc = "Self-occupied", theta=4, group_type=0)
-  }
   
-  if (any(add_condition)) {
-    new_row3 <- data.frame(onlyuse = "Residential", onlyocc = "Rented", theta=5, group_type=0)
-  }
-
-
-
-  combined_data <- bind_rows(combined_data, new_row, new_row2, new_row3)
-
-
-  selected_data <- combined_data %>%
-    select(theta, group_type, onlyocc, onlyuse)%>%
-    mutate(beta0 = beta0,
-           beta1 = beta1,
-           beta2 = beta2,
-           beta3 = beta3)
+## 5.3 compute equation (6), the total tax demand from the respondent's property type. Dividing by 100 since the ATR elicited from the respondent runs from 0 to 100 not from 0 to 1.
+  R1 <- (beta0 * V + beta1 * V1 + beta2 * V2 + beta3 * V3) / 100
   
-  final_data <- merge(selected_data, values, by = c("onlyuse", "onlyocc"), all.x = TRUE)
   
-  final_data <- final_data %>%
-    mutate(
-      rr_1 = beta0 * v_1 + beta1 * v_v1_1 + beta2 * v_v2_1 + beta3 * v_v3_1,
-      rr_2 = beta0 * v_2 + beta1 * v_v1_2 + beta2 * v_v2_2 + beta3 * v_v3_2,
-      rr_3 = beta0 * v_3 + beta1 * v_v1_3 + beta2 * v_v2_3 + beta3 * v_v3_3,
-      rr_4 = beta0 * v_4 + beta1 * v_v1_4 + beta2 * v_v2_4 + beta3 * v_v3_4
-    ) 
+# 6. Scale up to get total tax demand and back down again to get the projected revenue using equation (15)
   
-  rr_values_group_1 <- final_data %>%
-    filter(group_type == 1) %>%
-    select(rr_1, rr_2, rr_3, rr_4)
+  D1 <- ifelse(
+    df$onlyocc[[1]] == "Rented",
+    427526034,
+    ifelse(
+      df$onlyocc[[1]] == "Self-occupied",
+      916227952,
+      NA
+    )
+  ) # equation (11), total tax demand from the respondent's property type
   
-  sub_data <- final_data %>%
-    select(theta, onlyocc, onlyuse, group_type, group)
+  T <- 5450337792 # equation (14), total tax revenue actually paid
   
-  rr_values_long <- rr_values_group_1 %>%
-    gather(key = "group", value = "rr_value", rr_1:rr_4) %>%
-    mutate(group = as.numeric(sub("rr_", "", group)))
+  R <-
+    ((T / D1) * R1)/1e9 # equation (15) our projected revenue from the respondent's preferred tax schedule. Measured in billions of Rupees since we show it to the respondent.
   
-  revenue <- merge(rr_values_long, sub_data, by = "group") %>%
-    mutate(revenue = rr_value * theta)
-  
+  revenue <- data.frame(revenue=R) 
   total_revenue <- revenue %>%
     summarise(total_revenue = sum(revenue)) %>%
-    mutate(total_revenue = (total_revenue * 1.741784)/1e9) %>%
     mutate(current_revenue = 5.45) %>%
-    mutate(gap = total_revenue - current_revenue)
-  
-  revenues_long <- tidyr::gather(total_revenue, key = "Revenue_Type", value = "Revenue", current_revenue, total_revenue)
-  # Divide values in the "Revenue" column by a billion
-  # Create a bar chart using ggplot
-  # Set custom labels for x-axis variables
-  labels <- c("current_revenue" = "Revenue raised \n FY22", "total_revenue" = "Revenue raised from your \npreferred schedule")
-  revenues_long$Revenue_Type_Label <- labels[revenues_long$Revenue_Type]
-
+    mutate(gap = total_revenue - current_revenue) 
   
   return(total_revenue)
   print("code_chunk_4")
