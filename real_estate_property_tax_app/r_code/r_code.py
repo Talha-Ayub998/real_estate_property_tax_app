@@ -68,8 +68,7 @@ perform_analysis <- function(atr_calc, values) {
   myRhs <- c(0, -100, 0, -100, 0, -100, 0, -100)
 
 ##################### 
-# df <- df %>%
-#     mutate(atr=atr/100)
+df <- df %>%mutate(atr=atr/100)
 #####################  
 ## 4.3 run the unrestricted spline
   cspline <-
