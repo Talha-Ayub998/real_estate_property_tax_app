@@ -10,6 +10,8 @@ perform_analysis <- function(atr_calc, values) {
   merged_data$atr <- as.numeric(as.character(merged_data$atr))
   
   
+  
+  
   # Calculate the average atr for each value_bin when group_type is 1
   average_atr <- with(merged_data, tapply(atr[group_type == 1], value_bin[group_type == 1], mean))
   
@@ -29,16 +31,15 @@ perform_analysis <- function(atr_calc, values) {
   #    # Continue with further processing if needed
   #  }
   
-
-  # 4. Run the restricted spline
-
-  ## 4.1 grab the knots of the spline implied in the vs in the survey responses
-
-
-  df <- merged_data
-  df$lprop_val <- log(df$prop_val)
   
-  # knots:
+# 4. Run the restricted spline
+  
+## 4.1 grab the knots of the spline implied in the vs in the survey responses
+  
+  df <- merged_data
+
+  df$lprop_val <- log(df$prop_val)
+  ## knots:
   k1 <- df %>%
     subset(v2 != 0 & v3 == 0) %>%
     mutate(k1val = lprop_val - v2)
@@ -47,46 +48,49 @@ perform_analysis <- function(atr_calc, values) {
     subset(v3 != 0) %>%
     mutate(k2val = lprop_val - v3)
   k2 <- mean(k2$k2val)
-  ## 4.2 set up the restrictions on the spline
+  
+  
+## 4.2 set up the restrictions on the spline
   vmin <- 12
   vmax <- 21
   
-  df <- df %>%
-    mutate(atr=atr/100)
+  
+## specify the restriction matrix. Restriktor wants it in the form R * \theta >= rhs
+  myConstraints <- rbind(c(1, vmin, 0, 0),                     # 1. above 0 at vmin
+                         c(-1, -vmin, 0, 0),                   # 2. below 100 at vmin
+                         c(1, k1, 0, 0),                       # 3. above 0 at k1
+                         c(-1, -k1, 0, 0),                     # 4. below 100 at k1
+                         c(1, k1, (k2 - k1), 0),               # 5. above 0 at k2
+                         c(-1, -k1, -(k2 - k1), 0),            # 6. below 100 at k2
+                         c(1, k1, (k2 - k1), (vmax - k2)),     # 7. above 0 at vmax
+                         c(-1, -k1, -(k2 - k1), -(vmax - k2))) # 8. below 100 at vmax
+  
+  myRhs <- c(0, -100, 0, -100, 0, -100, 0, -100)
 
-    # get the spline that goes below zero as a reference.
-    cspline <- lm(atr ~ v1 + v2 + v3,
-                data = subset(df, group_type == 1))
-    df$atrh_cspline <- predict.lm(cspline, df)
-    
-    # Use restriktor and apply the 8 restrictions
-    ## specify the restriction matrix. Restriktor wants it in the form R * \theta >= rhs
-    myConstraints <- rbind(c(1, vmin, 0, 0),                     # 1. above 0 at vmin
-                        c(-1, -vmin, 0, 0),                   # 2. below 100 at vmin
-                        c(1, k1, 0, 0),                       # 3. above 0 at k1
-                        c(-1, -k1, 0, 0),                     # 4. below 100 at k1
-                        c(1, k1, (k2 - k1), 0),               # 5. above 0 at k2
-                        c(-1, -k1, -(k2 - k1), 0),            # 6. below 100 at k2
-                        c(1, k1, (k2 - k1), (vmax - k2)),     # 7. above 0 at vmax
-                        c(-1, -k1, -(k2 - k1), -(vmax - k2))) # 8. below 100 at vmax
-    
-    myRhs <- c(0, -100, 0, -100, 0, -100, 0, -100)
-    
-    ## run the restricted regression
-    # Measure the time before some operation
-    ptm <- proc.time()
-    restr.cspline <- restriktor(cspline, 
-                                constraints = myConstraints,
-                                rhs = myRhs,
-                                mix.weights = "boot",
-                                se = "none")
-    plot_data <- data.frame(prop_val = df$prop_val, 
-                          prediction = df$atrh_cspline,
-                          pred=df$atrh_cspline,
-                          atr=df$atr, 
-                          group_type=df$group_type,
-                          onlyuse=df$onlyuse,
-                          onlyocc=df$onlyocc)
+##################### 
+# df <- df %>%
+#     mutate(atr=atr/100)
+#####################  
+## 4.3 run the unrestricted spline
+  cspline <-
+    lm(
+      atr ~ v1 + v2 + v3,
+      data = df
+    )
+  
+## 4.4 run the restricted spline and summarize the outputs.
+  restr.cspline <-
+    restriktor(
+      cspline, 
+      constraints = myConstraints,
+      rhs = myRhs,
+      mix.weights = "boot",
+      se = "none"
+    )
+  summary(restr.cspline)
+  rm(cspline)
+
+
   
 # 5. Use the spline coefficients to compute revenue from respondent's response property type
   
