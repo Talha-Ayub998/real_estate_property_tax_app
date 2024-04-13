@@ -45,7 +45,6 @@ def save_to_csv(data, filename, total_revenue):
         os.makedirs(directory)
     # Create DataFrame from filtered data
     df = pd.DataFrame(data)
-    current_datetime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
     # Add 'revenue_value' column to the DataFrame with the total_revenue value
     df['revenue_value'] = total_revenue[0]
