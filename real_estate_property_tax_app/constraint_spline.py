@@ -23,13 +23,10 @@ def convert_to_pandas_dataframe(result):
     return total_revenue.values.flatten().tolist()
 
 def perform_analysis_with_r_integration(data):
-    directory = './Array_for_R_code'
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-    current_datetime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    json_filename = os.path.join(directory, f"{current_datetime}.json")
-    with open(json_filename, 'w') as json_file:
-        json.dump(data, json_file, indent=2)
+    # current_datetime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    # json_filename = os.path.join(directory, f"{current_datetime}.json")
+    # with open(json_filename, 'w') as json_file:
+    #     json.dump(data, json_file, indent=2)
     merged_data = pd.DataFrame(data)
     v_values = pd.read_csv("v_values_v3.csv")
     pandas2ri.deactivate()
@@ -41,6 +38,21 @@ def perform_analysis_with_r_integration(data):
 
     return convert_to_pandas_dataframe(result)
 
+
+def save_to_csv(data, filename, total_revenue):
+    directory = '/home/ubuntu/apps/real_estate_property_tax_app/backup_for_sheet2'
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    # Create DataFrame from filtered data
+    df = pd.DataFrame(data)
+    current_datetime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
+    # Add 'revenue_value' column to the DataFrame with the total_revenue value
+    df['revenue_value'] = total_revenue[0]
+
+    # Save DataFrame to CSV with filename as enumerator_name_datetime.csv
+    filepath = os.path.join(directory, f'{filename}_{current_datetime}.csv')
+    df.to_csv(filepath, index=False)
 
 # # Install the R package eg: 'dplyr'
 # import rpy2.robjects.packages as rpackages
