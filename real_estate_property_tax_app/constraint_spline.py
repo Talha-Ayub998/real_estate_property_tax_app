@@ -50,6 +50,13 @@ def save_to_csv(data, filename, total_revenue):
     # Add 'revenue_value' column to the DataFrame with the total_revenue value
     df['revenue_value'] = total_revenue[0]
 
+    # Rearrange column order to place 'revenue_value' before 'end_time' and 'deviceName'
+    columns = list(df.columns)
+    columns.insert(columns.index('end_time'), columns.pop(columns.index('revenue_value')))
+    df = df[columns]
+
+    current_datetime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
     # Save DataFrame to CSV with filename as enumerator_name_datetime.csv
     filepath = os.path.join(directory, f'{filename}_{current_datetime}.csv')
     df.to_csv(filepath, index=False)
