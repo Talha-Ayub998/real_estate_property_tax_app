@@ -4,6 +4,9 @@ from r_code.r_code import r_code
 import pandas as pd
 import json, os
 from datetime import datetime
+import gspread
+from google.oauth2.service_account import Credentials
+
 robjects.r('library(dplyr)')
 robjects.r('library(restriktor)')
 robjects.r('library(tidyr)')
@@ -39,6 +42,23 @@ def perform_analysis_with_r_integration(data):
     return convert_to_pandas_dataframe(result)
 
 
+def update_google_sheet(filepath):
+    try:
+        SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+        creds = Credentials.from_service_account_file('/home/ubuntu/apps/real_estate_property_tax_app/tax-app-420312-51aaf545a365.json', scopes=SCOPES)
+        gc = gspread.authorize(creds)
+        sheet_url = 'https://docs.google.com/spreadsheets/d/1jiXbgYlPdI5FJQVMK4H66hJ8g3SMB9nNpfj_wVNgSJg/edit#gid=0'
+        sheet = gc.open_by_url(sheet_url)
+        worksheet = sheet.get_worksheet(0)
+        df = pd.read_csv(filepath)
+        # Convert DataFrame to a list of lists (each inner list represents a row)
+        data = df.values.tolist()
+        worksheet.append_rows(data)
+        print("Google Sheet updated successfully.")
+    except Exception as e:
+        print(f"Error updating Google Sheet: {e}")
+
+
 def save_to_csv(data, filename, total_revenue):
     directory = '/home/ubuntu/apps/real_estate_property_tax_app/backup_for_sheet2'
     if not os.path.exists(directory):
@@ -59,6 +79,9 @@ def save_to_csv(data, filename, total_revenue):
     # Save DataFrame to CSV with filename as enumerator_name_datetime.csv
     filepath = os.path.join(directory, f'{filename}_{current_datetime}.csv')
     df.to_csv(filepath, index=False)
+    update_google_sheet(filepath)
+
+
 
 # # Install the R package eg: 'dplyr'
 # import rpy2.robjects.packages as rpackages
