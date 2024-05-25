@@ -1,4 +1,5 @@
 from constraint_spline import perform_analysis_with_r_integration, save_to_csv
+from requests.exceptions import ConnectionError, Timeout
 from rpy2.rinterface_lib.embedded import RRuntimeError
 from flask import request, jsonify
 from app import app
@@ -36,5 +37,7 @@ def perform_analysis():
             'success': True,
             "total_revenue": total_revenue
         }), 200
+    except (ConnectionError, Timeout) as e:
+        return jsonify({'success': False, 'message': "Server is down or request timed out"}), 503
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
