@@ -31,7 +31,7 @@ def perform_analysis_with_r_integration(data):
     # with open(json_filename, 'w') as json_file:
     #     json.dump(data, json_file, indent=2)
     merged_data = pd.DataFrame(data)
-    v_values = pd.read_csv("v_values_v3.csv")
+    v_values = pd.read_csv("v_values_v4.csv")
     pandas2ri.deactivate()
     pandas2ri.activate()
 
