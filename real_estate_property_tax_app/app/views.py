@@ -20,10 +20,10 @@ def perform_analysis():
         data = request.json
         try:
         # Perform analysis with R integration
-            total_revenue = perform_analysis_with_r_integration(data)
             filtered_data = [{key: entry[key] for key in desired_headers if key in entry} for entry in data]
-            # Get the value of 'enumerator_name' from the first entry
             enumerator_name = filtered_data[0].get('enumerator_name', 'unknown')
+            total_revenue = perform_analysis_with_r_integration(data, enumerator_name)
+            # Get the value of 'enumerator_name' from the first entry
             # Save desired data to CSV with enumerator_name as the filename
             save_to_csv(filtered_data, enumerator_name, total_revenue)
         except RRuntimeError:

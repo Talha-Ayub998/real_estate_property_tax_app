@@ -25,12 +25,14 @@ def convert_to_pandas_dataframe(result):
     total_revenue = pd.DataFrame(result)
     return total_revenue.values.flatten().tolist()
 
-def perform_analysis_with_r_integration(data):
-    # current_datetime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    # json_filename = os.path.join(directory, f"{current_datetime}.json")
-    # with open(json_filename, 'w') as json_file:
-    #     json.dump(data, json_file, indent=2)
+def perform_analysis_with_r_integration(data, enumerator_name):
     merged_data = pd.DataFrame(data)
+    directory = "/home/ubuntu/apps/real_estate_property_tax_app/real_estate_property_tax_app/Array_for_R_code"
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    current_datetime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    json_filename = os.path.join(directory, f"{enumerator_name}_{current_datetime}.json")
+    merged_data.to_json(json_filename, orient='records', indent=2)
     v_values = pd.read_csv("v_values_v4.csv")
     pandas2ri.deactivate()
     pandas2ri.activate()
