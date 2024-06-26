@@ -80,7 +80,7 @@ perform_analysis <- function(atr_calc, values) {
   restr.cspline <-
     restriktor(
       cspline, 
-      constraints = constraints,
+      constraints = myConstraints,
       rhs = myRhs,
       mix.weights = "none",
       se = "none"
