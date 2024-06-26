@@ -19,7 +19,9 @@ def perform_analysis():
         # Retrieve data from the request
         data = request.json
         try:
-        # Perform analysis with R integration
+            # Just to change the atr values for now
+            data = [{**item, "atr": 0.000001 if item["atr"] == 0 else (0 if item["atr"] == 0.00000001 else item["atr"])} for item in data]
+            # Perform analysis with R integration
             filtered_data = [{key: entry[key] for key in desired_headers if key in entry} for entry in data]
             enumerator_name = filtered_data[0].get('enumerator_name', 'unknown')
             total_revenue = perform_analysis_with_r_integration(data, enumerator_name)
