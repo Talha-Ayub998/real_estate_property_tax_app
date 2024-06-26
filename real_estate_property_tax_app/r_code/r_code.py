@@ -67,8 +67,7 @@ perform_analysis <- function(atr_calc, values) {
   
   myRhs <- c(0, -100, 0, -100, 0, -100, 0, -100)
 
-##################### 
-df <- df %>%mutate(atr=atr/100)
+
 #####################  
 ## 4.3 run the unrestricted spline
   cspline <-
@@ -81,9 +80,9 @@ df <- df %>%mutate(atr=atr/100)
   restr.cspline <-
     restriktor(
       cspline, 
-      constraints = myConstraints,
+      constraints = constraints,
       rhs = myRhs,
-      mix.weights = "boot",
+      mix.weights = "none",
       se = "none"
     )
   summary(restr.cspline)
