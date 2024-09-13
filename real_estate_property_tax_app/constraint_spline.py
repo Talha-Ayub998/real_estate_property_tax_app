@@ -84,6 +84,45 @@ def save_to_csv(data, filename, total_revenue):
     update_google_sheet(filepath)
 
 
+def save_dashboard_1_data_on_sheets(data):
+    try:
+        SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+        creds = Credentials.from_service_account_file(
+            '/home/ubuntu/apps/real_estate_property_tax_app/tax-app-420312-51aaf545a365.json', scopes=SCOPES)
+        gc = gspread.authorize(creds)
+        sheet_url = 'https://docs.google.com/spreadsheets/d/1jiXbgYlPdI5FJQVMK4H66hJ8g3SMB9nNpfj_wVNgSJg/edit#gid=0'
+        sheet = gc.open_by_url(sheet_url)
+        worksheet = sheet.get_worksheet(1)
+
+        # Convert data dictionary to a list
+        row = [
+            data.get('start_date_time', ''),
+            data.get('end_date_time', ''),
+            data.get('Prop_id', ''),
+            data.get('Enumerator_name', ''),
+            data.get('House1', ''),
+            data.get('House2', ''),
+            data.get('House3', ''),
+            data.get('deviceName', '')
+        ]
+        # Append the row to the worksheet
+        worksheet.append_row(row)
+        print("Google Sheet updated successfully.")
+    except Exception as e:
+        print(f"Error updating Google Sheet: {e}")
+
+
+
+# def save_to_csv_for_sheet3(data, filtered_data, enumerator_name):
+#     directory = '/home/ubuntu/apps/real_estate_property_tax_app/backup_for_sheet3'
+#     if not os.path.exists(directory):
+#         os.makedirs(directory)
+#     # Create DataFrame from filtered data
+#     df = pd.DataFrame(data, columns=headers_for_sheet3)
+#     filepath = os.path.join(directory, f'{filename}_{current_datetime}.csv')
+#     df.to_csv(filepath, index=False)
+
+
 
 # # Install the R package eg: 'dplyr'
 # import rpy2.robjects.packages as rpackages

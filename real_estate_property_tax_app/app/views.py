@@ -1,4 +1,4 @@
-from constraint_spline import perform_analysis_with_r_integration, save_to_csv
+from constraint_spline import perform_analysis_with_r_integration, save_to_csv, save_dashboard_1_data_on_sheets
 from requests.exceptions import ConnectionError, Timeout
 from rpy2.rinterface_lib.embedded import RRuntimeError
 from flask import request, jsonify
@@ -11,7 +11,7 @@ desired_headers = ['start_time', 'prop_id', 'enumerator_name', 'number_of_proper
 
 @app.route('/')
 def hello_world():
-    return jsonify({'success': True,}) 
+    return jsonify({'success': True,})
 
 @app.route('/analysis', methods=['POST'])
 def perform_analysis():
@@ -43,3 +43,54 @@ def perform_analysis():
         return jsonify({'success': False, 'message': "Server is down or request timed out"}), 503
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
+
+
+@app.route('/save_dashboard_1.1', methods=['POST'])
+def save_dashboard_1():
+    try:
+        # Retrieve data from the request
+        data = request.json
+        save_dashboard_1_data_on_sheets(data)
+        return jsonify({
+            'success': True,
+        }), 200
+    except (ConnectionError, Timeout) as e:
+        return jsonify({'success': False, 'message': "Server is down or request timed out"}), 503
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
+
+
+# from constraint_spline import perform_analysis_with_r_integration, save_to_csv, save_to_csv_for_sheet3
+
+
+# headers_for_sheet3 = ["start_date_time", "Enumerator_name", "prop_id", "type", "spending",
+#                     "budget_support", "international_debt", "property_tax", "high_residential",
+#                     "medium_residential", "high_commercial", "medium_commercial", "end_survey_time",
+#                     "deviceName",]
+
+
+# @app.route('/save_survey', methods=['POST'])
+# def perform_analysis():
+#     try:
+#         # Retrieve data from the request
+#         data = request.json
+#         try:
+#             filtered_data = [{key: entry[key] for key in headers_for_sheet3 if key in entry} for entry in data]
+#             # Get the value of 'enumerator_name' from the first entry
+#             enumerator_name = filtered_data[0].get('Enumerator_name', 'unknown')
+#             save_to_csv_for_sheet3(data, filtered_data, enumerator_name)
+#         except RRuntimeError:
+#             return jsonify({
+#                 'success': False,
+#             }), 400
+
+#         return jsonify({
+#             'success': True
+#         }), 200
+#     except (ConnectionError, Timeout) as e:
+#         return jsonify({'success': False, 'message': "Server is down or request timed out"}), 503
+#     except Exception as e:
+#         return jsonify({'success': False, 'message': str(e)}), 500
+
