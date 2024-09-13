@@ -1,4 +1,5 @@
-from constraint_spline import perform_analysis_with_r_integration, save_to_csv, save_dashboard_1_data_on_sheets
+from constraint_spline import perform_analysis_with_r_integration, save_to_csv,\
+    save_dashboard_1_data_on_sheets, save_dashboard_2_survey_data_on_sheets
 from requests.exceptions import ConnectionError, Timeout
 from rpy2.rinterface_lib.embedded import RRuntimeError
 from flask import request, jsonify
@@ -60,6 +61,20 @@ def save_dashboard_1():
         return jsonify({'success': False, 'message': str(e)}), 500
 
 
+
+@app.route('/save_dashboard_2.2_survey', methods=['POST'])
+def save_dashboard_2_survey():
+    try:
+        # Retrieve data from the request
+        data = request.json
+        save_dashboard_2_survey_data_on_sheets(data)
+        return jsonify({
+            'success': True,
+        }), 200
+    except (ConnectionError, Timeout) as e:
+        return jsonify({'success': False, 'message': "Server is down or request timed out"}), 503
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 
 # from constraint_spline import perform_analysis_with_r_integration, save_to_csv, save_to_csv_for_sheet3

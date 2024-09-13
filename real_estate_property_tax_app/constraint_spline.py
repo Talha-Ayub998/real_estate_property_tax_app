@@ -112,6 +112,41 @@ def save_dashboard_1_data_on_sheets(data):
         print(f"Error updating Google Sheet: {e}")
 
 
+def save_dashboard_2_survey_data_on_sheets(data):
+    try:
+        SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+        creds = Credentials.from_service_account_file(
+            '/home/ubuntu/apps/real_estate_property_tax_app/tax-app-420312-51aaf545a365.json', scopes=SCOPES)
+        gc = gspread.authorize(creds)
+        sheet_url = 'https://docs.google.com/spreadsheets/d/1jiXbgYlPdI5FJQVMK4H66hJ8g3SMB9nNpfj_wVNgSJg/edit#gid=0'
+        sheet = gc.open_by_url(sheet_url)
+        worksheet = sheet.get_worksheet(2)
+
+        # Convert data dictionary to a list
+        row = [
+            data.get('start_date_time'),
+            data.get('Enumerator_name'),
+            data.get('prop_id'),
+            data.get('type'),
+            data.get('spending'),
+            data.get('budget_support'),
+            data.get('international_debt'),
+            data.get('property_tax'),
+            data.get('high_residential'),
+            data.get('medium_residential'),
+            data.get('high_commercial'),
+            data.get('medium_commercial'),
+            data.get('end_survey_time'),
+            data.get('deviceName')
+        ]
+
+        # Append the row to the worksheet
+        worksheet.append_row(row)
+        print("Google Sheet updated successfully.")
+    except Exception as e:
+        print(f"Error updating Google Sheet: {e}")
+
+
 
 # def save_to_csv_for_sheet3(data, filtered_data, enumerator_name):
 #     directory = '/home/ubuntu/apps/real_estate_property_tax_app/backup_for_sheet3'
