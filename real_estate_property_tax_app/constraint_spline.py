@@ -51,7 +51,7 @@ def update_google_sheet(filepath):
         gc = gspread.authorize(creds)
         sheet_url = 'https://docs.google.com/spreadsheets/d/1jiXbgYlPdI5FJQVMK4H66hJ8g3SMB9nNpfj_wVNgSJg/edit#gid=0'
         sheet = gc.open_by_url(sheet_url)
-        worksheet = sheet.get_worksheet(0)
+        worksheet = sheet.get_worksheet(1)
         df = pd.read_csv(filepath)
         # Convert DataFrame to a list of lists (each inner list represents a row)
         data = df.values.tolist()
@@ -92,7 +92,7 @@ def save_dashboard_1_data_on_sheets(data):
         gc = gspread.authorize(creds)
         sheet_url = 'https://docs.google.com/spreadsheets/d/1jiXbgYlPdI5FJQVMK4H66hJ8g3SMB9nNpfj_wVNgSJg/edit#gid=0'
         sheet = gc.open_by_url(sheet_url)
-        worksheet = sheet.get_worksheet(1)
+        worksheet = sheet.get_worksheet(0)
 
         # Convert data dictionary to a list
         row = [
