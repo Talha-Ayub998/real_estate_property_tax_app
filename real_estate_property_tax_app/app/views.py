@@ -19,13 +19,15 @@ def perform_analysis():
     try:
         # Retrieve data from the request
         data = request.json
+        run_code = request.headers.get("X-Run-Code")
         try:
             # Just to change the atr values for now
             data = [{**item, "atr": 0.00000001 if item["atr"] == 0.000001 else (0 if item["atr"] == 0.00000001 else item["atr"])} for item in data]
             # Perform analysis with R integration
             filtered_data = [{key: entry[key] for key in desired_headers if key in entry} for entry in data]
             enumerator_name = filtered_data[0].get('enumerator_name', 'unknown')
-            total_revenue = perform_analysis_with_r_integration(data, enumerator_name)
+            total_revenue = perform_analysis_with_r_integration(
+                data, enumerator_name, run_code)
             # Get the value of 'enumerator_name' from the first entry
             # Save desired data to CSV with enumerator_name as the filename
             save_to_csv(filtered_data, enumerator_name, total_revenue)

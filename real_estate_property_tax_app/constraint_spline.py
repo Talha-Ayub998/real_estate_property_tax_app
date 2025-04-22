@@ -1,6 +1,7 @@
 from rpy2.robjects import pandas2ri
 import rpy2.robjects as robjects
 from r_code.r_code import r_code
+from r_code.r_code_2 import r_code_2
 import pandas as pd
 import json, os
 from datetime import datetime
@@ -15,8 +16,12 @@ pandas2ri.activate()
 def convert_to_r_dataframe(data_frame):
     return pandas2ri.py2rpy(data_frame)
 
-def run_r_analysis(merged_data, v_values):
-    robjects.r(r_code)
+def run_r_analysis(merged_data, v_values, run_code):
+    if run_code == "r_code_2":
+        robjects.r(r_code_2)
+    else:
+        robjects.r(r_code)
+
     r_function = robjects.globalenv['perform_analysis']
     result = r_function(merged_data, v_values)
     return result
@@ -25,7 +30,8 @@ def convert_to_pandas_dataframe(result):
     total_revenue = pd.DataFrame(result)
     return total_revenue.values.flatten().tolist()
 
-def perform_analysis_with_r_integration(data, enumerator_name):
+
+def perform_analysis_with_r_integration(data, enumerator_name, run_code):
     merged_data = pd.DataFrame(data)
     directory = "/home/ubuntu/apps/real_estate_property_tax_app/real_estate_property_tax_app/Array_for_R_code"
     if not os.path.exists(directory):
@@ -39,7 +45,7 @@ def perform_analysis_with_r_integration(data, enumerator_name):
 
     merged_data_r = convert_to_r_dataframe(merged_data)
     v_values_r = convert_to_r_dataframe(v_values)
-    result = run_r_analysis(merged_data_r, v_values_r)
+    result = run_r_analysis(merged_data_r, v_values_r, run_code)
 
     return convert_to_pandas_dataframe(result)
 
