@@ -2,6 +2,17 @@ r_code_2 = """
 
 perform_analysis <- function(atr_calc) {
 
+  # Safety check: If all ATRs are nearly the same, return a flat line
+  atr_sd <- sd(atr_calc$atr, na.rm = TRUE)
+  if (atr_sd < 0.001) {
+    flat_val <- mean(atr_calc$atr, na.rm = TRUE)
+    spline_df <- data.frame(
+      lprop_val = seq(12, 21, length.out = 100),
+      spline_val = flat_val
+    )
+    return(spline_df)
+  }
+
 # 4. Run the restricted spline
 ## 4.1 grab the knots of the spline implied in the vs in the survey responses
 
