@@ -16,14 +16,14 @@ pandas2ri.activate()
 def convert_to_r_dataframe(data_frame):
     return pandas2ri.py2rpy(data_frame)
 
-def run_r_analysis(merged_data, v_values, run_code):
+def run_r_analysis(merged_data, run_code):
     if run_code == "r_code_2":
         robjects.r(r_code_2)
     else:
         robjects.r(r_code)
 
     r_function = robjects.globalenv['perform_analysis']
-    result = r_function(merged_data, v_values)
+    result = r_function(merged_data)
     return result
 
 def convert_to_pandas_dataframe(result):
@@ -33,19 +33,19 @@ def convert_to_pandas_dataframe(result):
 
 def perform_analysis_with_r_integration(data, enumerator_name, run_code):
     merged_data = pd.DataFrame(data)
-    directory = "/home/ubuntu/apps/real_estate_property_tax_app/real_estate_property_tax_app/Array_for_R_code"
+    directory = "/home/ubuntu/apps/real_estate_property_tax_app/real_estate_property_tax_app/Array_for_R_code_2"
     if not os.path.exists(directory):
         os.makedirs(directory)
     current_datetime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     json_filename = os.path.join(directory, f"{enumerator_name}_{current_datetime}.json")
     merged_data.to_json(json_filename, orient='records', indent=2)
-    v_values = pd.read_csv("v_values_v4.csv")
+    # v_values = pd.read_csv("v_values_v4.csv")
     pandas2ri.deactivate()
     pandas2ri.activate()
 
     merged_data_r = convert_to_r_dataframe(merged_data)
-    v_values_r = convert_to_r_dataframe(v_values)
-    result = run_r_analysis(merged_data_r, v_values_r, run_code)
+    # v_values_r = convert_to_r_dataframe(v_values)
+    result = run_r_analysis(merged_data_r, run_code)
 
     return convert_to_pandas_dataframe(result)
 
