@@ -16,12 +16,8 @@ pandas2ri.activate()
 def convert_to_r_dataframe(data_frame):
     return pandas2ri.py2rpy(data_frame)
 
-def run_r_analysis(merged_data, run_code):
-    if run_code == "r_code_2":
-        robjects.r(r_code_2)
-    else:
-        robjects.r(r_code)
-
+def run_r_analysis(merged_data):
+    robjects.r(r_code_2)
     r_function = robjects.globalenv['perform_analysis']
     result = r_function(merged_data)
     return result
@@ -31,7 +27,7 @@ def convert_to_pandas_dataframe(result):
     return total_revenue.values.flatten().tolist()
 
 
-def perform_analysis_with_r_integration(data, enumerator_name, run_code):
+def perform_analysis_with_r_integration(data, enumerator_name):
     merged_data = pd.DataFrame(data)
     directory = "/home/ubuntu/apps/real_estate_property_tax_app/real_estate_property_tax_app/Array_for_R_code_2"
     if not os.path.exists(directory):
@@ -45,7 +41,7 @@ def perform_analysis_with_r_integration(data, enumerator_name, run_code):
 
     merged_data_r = convert_to_r_dataframe(merged_data)
     # v_values_r = convert_to_r_dataframe(v_values)
-    result = run_r_analysis(merged_data_r, run_code)
+    result = run_r_analysis(merged_data_r)
 
     return convert_to_pandas_dataframe(result)
 
@@ -55,9 +51,9 @@ def update_google_sheet(filepath):
         SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
         creds = Credentials.from_service_account_file('/home/ubuntu/apps/real_estate_property_tax_app/tax-app-420312-51aaf545a365.json', scopes=SCOPES)
         gc = gspread.authorize(creds)
-        sheet_url = 'https://docs.google.com/spreadsheets/d/1jiXbgYlPdI5FJQVMK4H66hJ8g3SMB9nNpfj_wVNgSJg/edit#gid=0'
+        sheet_url = 'https://docs.google.com/spreadsheets/d/1jiXbgYlPdI5FJQVMK4H66hJ8g3SMB9nNpfj_wVNgSJg/edit?gid=0#gid=0'
         sheet = gc.open_by_url(sheet_url)
-        worksheet = sheet.get_worksheet(1)
+        worksheet = sheet.get_worksheet(0)
         df = pd.read_csv(filepath)
         # Convert DataFrame to a list of lists (each inner list represents a row)
         data = df.values.tolist()
@@ -67,26 +63,21 @@ def update_google_sheet(filepath):
         print(f"Error updating Google Sheet: {e}")
 
 
-def save_to_csv(data, filename, total_revenue):
-    directory = '/home/ubuntu/apps/real_estate_property_tax_app/backup_for_sheet2'
+def save_to_csv(data, filename):
+    directory = '/home/ubuntu/apps/real_estate_property_tax_app/backup_for_sheet_2'
     if not os.path.exists(directory):
         os.makedirs(directory)
     # Create DataFrame from filtered data
     df = pd.DataFrame(data)
 
-    # Add 'revenue_value' column to the DataFrame with the total_revenue value
-    df['revenue_value'] = total_revenue[0]
-
-    # Rearrange column order to place 'revenue_value' before 'end_time' and 'deviceName'
-    columns = list(df.columns)
-    columns.insert(columns.index('end_time'), columns.pop(columns.index('revenue_value')))
-    df = df[columns]
-
+    # Generate current timestamp
     current_datetime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
-    # Save DataFrame to CSV with filename as enumerator_name_datetime.csv
+    # Build file path and save CSV
     filepath = os.path.join(directory, f'{filename}_{current_datetime}.csv')
     df.to_csv(filepath, index=False)
+
+    # Push to Google Sheet
     update_google_sheet(filepath)
 
 
