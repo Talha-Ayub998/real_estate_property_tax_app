@@ -22,4 +22,3 @@ Array_for_R_code_2/*
 
 # Ignore all JSON files
 *.json
-../deployment.sh
