@@ -1,3 +1,25 @@
 /venv
 **/__pycache__/
 .DS_Store
+
+# Ignore specific files
+../2.csv
+../all_files.zip
+../backup_for_sheet_1/
+../backup_for_sheet_2/
+../deployment.sh
+../image.jpeg
+../my-script.py
+../output.csv
+../tax-app-420312-51aaf545a365.json
+
+# Optionally, you can use glob patterns to ignore similar files
+Array_for_R_code/*
+Array_for_R_code_2/*
+
+# Ignore all CSV files
+*.csv
+
+# Ignore all JSON files
+*.json
+../deployment.sh
